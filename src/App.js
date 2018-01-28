@@ -1,9 +1,25 @@
 import React, { Component } from 'react';
+import * as firebase from 'firebase';
 import moment from 'moment';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import ReservationList from './ReservationList';
 import AddReservationModal from './AddReservationModal';
 import './App.css';
+
+let database;
+
+export const init = () => {
+  let config = {
+    apiKey: "AIzaSyCAA_1GV2gy4hG7pRJIFsWn6VLx5-tRfHc",
+    authDomain: "booking-app-88db1.firebaseapp.com",
+    databaseURL: "https://booking-app-88db1.firebaseio.com",
+		projectId: "booking-app-88db1",
+    storageBucket: "",
+    messagingSenderId: "431906436671"
+  }
+  firebase.initializeApp(config);
+  database = firebase.database();
+}
 
 export default class App extends Component {
   constructor() {
@@ -14,11 +30,28 @@ export default class App extends Component {
       selectValue: '',
       startDate: '',
   		endDate: '',
-      bookList: [
-        ['Błękitny', '12/12/2017', '26/12/2017'],
-        ['Diamentowy', '15/06/2017', '22/17/2017'],
-      ],
+      bookList: [],
     }
+    init();
+  }
+
+  componentDidMount() {
+    let bookListRef = database.ref('bookList').orderByKey().limitToLast(100);
+    bookListRef.on('value', (snapshot) => {
+      let items = snapshot.val();
+      let newState = [];
+      for (let item in items) {
+        newState.push({
+          id: item,
+          name: items[item].name,
+          startDate: items[item].startDate,
+          endDate: items[item].endDate
+        });
+      }
+      this.setState({
+        bookList: newState
+      });
+    });
   }
 
   handleOpenModal = () => {
@@ -48,12 +81,9 @@ export default class App extends Component {
       case 5:
         itemValue = 'Brązowy';
         break;
-      default:
-        itemValue = '';
-        break;
     }
 
-		this.setState({
+    this.setState({
       apartamentName: itemValue,
       selectValue: value
     });
@@ -73,14 +103,42 @@ export default class App extends Component {
     let name = this.state.apartamentName;
     let startDate = this.state.startDate;
     let endDate = this.state.endDate;
-    let bookList = this.state.bookList;
 
-    bookList.push([name, startDate, endDate]);
+    if (name == '' || startDate == '' || endDate == '') {
+      alert('Czegoś brakuje! Uzupełnij brakujące informacje i spróbuj ponownie.');
+    } else {
+      // zapisuje rezerwację do bazy danych
+      database.ref('bookList').push({
+        name: name,
+        startDate: startDate,
+        endDate: endDate
+      });
 
-    this.setState({
-      bookList: bookList,
-      modalIsOpen: false
-    });
+      let bookListRef = database.ref('bookList').orderByKey().limitToLast(100);
+      bookListRef.on('value', (snapshot) => {
+        let items = snapshot.val();
+        let newState = [];
+        for (let item in items) {
+          newState.push({
+            id: item,
+            name: items[item].name,
+            startDate: items[item].startDate,
+            endDate: items[item].endDate
+          });
+        }
+        this.setState({
+          bookList: newState
+        });
+      });
+
+      this.setState({
+        modalIsOpen: false,
+        apartamentName: '',
+        selectValue: '',
+        startDate: '',
+    		endDate: ''
+      });
+    }
   };
 
   handleDeleteReservation = (apartament) => {
@@ -91,6 +149,9 @@ export default class App extends Component {
     this.setState({
       bookList: bookList
     });
+
+    let bookListRef = database.ref('bookList');
+    bookListRef.child(apartament).remove();
   };
 
   render() {

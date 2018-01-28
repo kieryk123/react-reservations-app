@@ -23,6 +23,12 @@ export default class AddReservationModal extends Component {
       />
     ];
 
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() + 1);
+
+    const autoOk = true;
+
     return (
       <div>
         <FloatingActionButton
@@ -41,8 +47,8 @@ export default class AddReservationModal extends Component {
           <p>Uzupełnij szczegóły rezerwacji.</p>
 					<SelectApartament value={this.props.actualApartament} handleChange={this.props.chooseApartament} />
 					<div>
-	          <DatePicker hintText="Od kiedy?" style={{display: 'inline-block'}} onChange={this.props.chooseStartDate} />
-	          <DatePicker hintText="Do kiedy?" style={{display: 'inline-block', marginLeft: 10}} onChange={this.props.chooseEndDate} />
+	          <DatePicker hintText="Od kiedy?" style={{display: 'inline-block'}} onChange={this.props.chooseStartDate} minDate={today} autoOk={autoOk} />
+	          <DatePicker hintText="Do kiedy?" style={{display: 'inline-block', marginLeft: 10}} onChange={this.props.chooseEndDate} minDate={yesterday} autoOk={autoOk} />
 					</div>
         </Dialog>
       </div>
