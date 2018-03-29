@@ -41,14 +41,17 @@ export default class ReservationList extends Component {
 					break;
 			}
 
+			let fromDate = item.startDate;
+			let toDate = item.endDate;
+
 			return (
 				<SingleReservation
 					index={item.id}
 					key={index}
 					name={'Apartament ' + item.name}
 					image={apartmentImage}
-					fromDate={item.startDate}
-					toDate={item.endDate}
+					fromDate={fromDate}
+					toDate={toDate}
 					delete={this.deleteReservation.bind(this)}
 				/>
 			)

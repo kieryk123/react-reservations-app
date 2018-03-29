@@ -8,7 +8,7 @@ import './App.css';
 
 let database;
 
-export const init = () => {
+const firebaseInit = () => {
   let config = {
     apiKey: "AIzaSyCAA_1GV2gy4hG7pRJIFsWn6VLx5-tRfHc",
     authDomain: "booking-app-88db1.firebaseapp.com",
@@ -31,8 +31,13 @@ export default class App extends Component {
       startDate: '',
   		endDate: '',
       bookList: [],
+      apartment1UnavailableDates: [],
+      apartment2UnavailableDates: [],
+      apartment3UnavailableDates: [],
+      apartment4UnavailableDates: [],
+      apartment5UnavailableDates: [],
     }
-    init();
+    firebaseInit();
   }
 
   componentDidMount() {
@@ -40,6 +45,14 @@ export default class App extends Component {
     bookListRef.on('value', (snapshot) => {
       let items = snapshot.val();
       let newState = [];
+      let apartment1UnavailableDates = [];
+      let apartment2UnavailableDates = [];
+      let apartment3UnavailableDates = [];
+      let apartment4UnavailableDates = [];
+      let apartment5UnavailableDates = [];
+      let startDate;
+      let endDate;
+
       for (let item in items) {
         newState.push({
           id: item,
@@ -47,9 +60,76 @@ export default class App extends Component {
           startDate: items[item].startDate,
           endDate: items[item].endDate
         });
+
+        // if (items[item].name == 'Bursztynowy') {
+        //   startDate = moment(items[item].startDate, 'DD/MM/YYYY');
+        //   endDate = moment(items[item].endDate, 'DD/MM/YYYY');
+        //
+        //   while (startDate.isSameOrBefore(endDate)) {
+        //     apartment1UnavailableDates.push(startDate.clone());
+        //     startDate.add(1, 'days');
+        //   }
+        // }
+
+        switch (items[item].name) {
+          case 'Bursztynowy':
+            startDate = moment(items[item].startDate, 'DD/MM/YYYY');
+            endDate = moment(items[item].endDate, 'DD/MM/YYYY');
+
+            while (startDate.isSameOrBefore(endDate)) {
+              apartment1UnavailableDates.push(startDate.clone());
+              startDate.add(1, 'days');
+            }
+            break;
+
+          case 'Błękitny':
+            startDate = moment(items[item].startDate, 'DD/MM/YYYY');
+            endDate = moment(items[item].endDate, 'DD/MM/YYYY');
+
+            while (startDate.isSameOrBefore(endDate)) {
+              apartment2UnavailableDates.push(startDate.clone());
+              startDate.add(1, 'days');
+            }
+            break;
+
+          case 'Złoty':
+            startDate = moment(items[item].startDate, 'DD/MM/YYYY');
+            endDate = moment(items[item].endDate, 'DD/MM/YYYY');
+
+            while (startDate.isSameOrBefore(endDate)) {
+              apartment3UnavailableDates.push(startDate.clone());
+              startDate.add(1, 'days');
+            }
+            break;
+
+          case 'Srebrny':
+            startDate = moment(items[item].startDate, 'DD/MM/YYYY');
+            endDate = moment(items[item].endDate, 'DD/MM/YYYY');
+
+            while (startDate.isSameOrBefore(endDate)) {
+              apartment4UnavailableDates.push(startDate.clone());
+              startDate.add(1, 'days');
+            }
+            break;
+
+          case 'Brązowy':
+            startDate = moment(items[item].startDate, 'DD/MM/YYYY');
+            endDate = moment(items[item].endDate, 'DD/MM/YYYY');
+
+            while (startDate.isSameOrBefore(endDate)) {
+              apartment5UnavailableDates.push(startDate.clone());
+              startDate.add(1, 'days');
+            }
+            break;
+        }
       }
       this.setState({
-        bookList: newState
+        bookList: newState,
+        apartment1UnavailableDates: apartment1UnavailableDates,
+        apartment2UnavailableDates: apartment2UnavailableDates,
+        apartment3UnavailableDates: apartment3UnavailableDates,
+        apartment4UnavailableDates: apartment4UnavailableDates,
+        apartment5UnavailableDates: apartment5UnavailableDates
       });
     });
   }
@@ -90,13 +170,11 @@ export default class App extends Component {
 	}
 
   handleChooseStartDate = (e, date) => {
-    let formattedDate = moment(date).format('DD/MM/YYYY');
-    this.setState({startDate: formattedDate});
+    this.setState({startDate: date});
   };
 
   handleChooseEndDate = (e, date) => {
-    let formattedDate = moment(date).format('DD/MM/YYYY');
-    this.setState({endDate: formattedDate});
+    this.setState({endDate: date});
   };
 
   handleConfirmReservation = () => {
@@ -108,10 +186,14 @@ export default class App extends Component {
       alert('Czegoś brakuje! Uzupełnij brakujące informacje i spróbuj ponownie.');
     } else {
       // zapisuje rezerwację do bazy danych
+
+      let startDateFormated = moment(startDate).format('DD/MM/YYYY');
+      let endDateFormated = moment(endDate).format('DD/MM/YYYY');
+
       database.ref('bookList').push({
         name: name,
-        startDate: startDate,
-        endDate: endDate
+        startDate: startDateFormated,
+        endDate: endDateFormated
       });
 
       let bookListRef = database.ref('bookList').orderByKey().limitToLast(100);
@@ -130,6 +212,8 @@ export default class App extends Component {
           bookList: newState
         });
       });
+
+      this.handleSetUnavailableDates(startDate, endDate, name);
 
       this.setState({
         modalIsOpen: false,
@@ -154,6 +238,83 @@ export default class App extends Component {
     bookListRef.child(apartament).remove();
   };
 
+  handleSetUnavailableDates = (startDate, endDate, apartment) => {
+    startDate = moment(startDate, 'DD/MM/YYYY');
+    endDate = moment(endDate, 'DD/MM/YYYY');
+
+    switch (apartment) {
+      case 'Bursztynowy':
+        let apartment1Dates = this.state.apartment1UnavailableDates;
+
+        while (startDate.isSameOrBefore(endDate)) {
+          apartment1Dates.push(startDate.clone());
+          startDate.add(1, 'days');
+        }
+
+        this.setState({
+          apartment1UnavailableDates: apartment1Dates
+        });
+
+        break;
+
+      case 'Błękitny':
+        let apartment2Dates = this.state.apartment2UnavailableDates;
+
+        while (startDate.isSameOrBefore(endDate)) {
+          apartment2Dates.push(startDate.clone());
+          startDate.add(1, 'days');
+        }
+
+        this.setState({
+          apartment2UnavailableDates: apartment2Dates
+        });
+
+        break;
+
+      case 'Złoty':
+        let apartment3Dates = this.state.apartment3UnavailableDates;
+
+        while (startDate.isSameOrBefore(endDate)) {
+          apartment3Dates.push(startDate.clone());
+          startDate.add(1, 'days');
+        }
+
+        this.setState({
+          apartment3UnavailableDates: apartment3Dates
+        });
+
+        break;
+
+      case 'Srebrny':
+        let apartment4Dates = this.state.apartment4UnavailableDates;
+
+        while (startDate.isSameOrBefore(endDate)) {
+          apartment4Dates.push(startDate.clone());
+          startDate.add(1, 'days');
+        }
+
+        this.setState({
+          apartment4UnavailableDates: apartment4Dates
+        });
+
+        break;
+
+      case 'Brązowy':
+        let apartment5Dates = this.state.apartment5UnavailableDates;
+
+        while (startDate.isSameOrBefore(endDate)) {
+          apartment5Dates.push(startDate.clone());
+          startDate.add(1, 'days');
+        }
+
+        this.setState({
+          apartment5UnavailableDates: apartment5Dates
+        });
+
+        break;
+    }
+  }
+
   render() {
     return (
       <MuiThemeProvider>
@@ -173,6 +334,11 @@ export default class App extends Component {
             chooseStartDate={this.handleChooseStartDate}
             chooseEndDate={this.handleChooseEndDate}
             confirmReservation={this.handleConfirmReservation}
+            apartment1UnavailableDates={this.state.apartment1UnavailableDates}
+            apartment2UnavailableDates={this.state.apartment2UnavailableDates}
+            apartment3UnavailableDates={this.state.apartment3UnavailableDates}
+            apartment4UnavailableDates={this.state.apartment4UnavailableDates}
+            apartment5UnavailableDates={this.state.apartment5UnavailableDates}
           />
         </div>
       </MuiThemeProvider>
