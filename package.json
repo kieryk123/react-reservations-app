@@ -2,6 +2,7 @@
   "name": "react_powtorka",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "firebase": "^4.9.0",
     "moment": "^2.19.1",
