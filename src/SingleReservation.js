@@ -8,18 +8,18 @@ import DeleteIcon from 'material-ui/svg-icons/action/delete';
 import CalendarIcon from 'material-ui/svg-icons/action/date-range';
 
 export default class SingleReservation extends Component {
-	delete() {
+	delete = () => {
 		this.props.delete(this.props.index);
 	}
 
-	showImage() {
+	showImage = () => {
 		let imageUrl = this.props.image;
 		window.open(imageUrl);
 	}
 
 	render() {
 		const rightIconDelete = (
-			<IconButton onClick={this.delete.bind(this)}>
+			<IconButton onClick={this.delete}>
 		    <DeleteIcon />
 		  </IconButton>
 		);
@@ -28,7 +28,7 @@ export default class SingleReservation extends Component {
 			<div>
 				<ListItem
 					leftAvatar={
-						<Avatar onClick={this.showImage.bind(this)} src={this.props.image} style={{width: 43, height: 43}} />
+						<Avatar onClick={this.showImage} src={this.props.image} style={{width: 43, height: 43}} />
 					}
 					rightIconButton={rightIconDelete}
 					primaryText={this.props.name}

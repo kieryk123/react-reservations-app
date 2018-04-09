@@ -25,6 +25,7 @@ export default class App extends Component {
   constructor() {
     super();
     this.state = {
+      loading: true,
       modalIsOpen: false,
       apartamentName: '',
       selectValue: '',
@@ -38,6 +39,8 @@ export default class App extends Component {
       apartment5UnavailableDates: [],
     }
     firebaseInit();
+
+    this.handleDeleteReservation = this.handleDeleteReservation.bind(this);
   }
 
   componentDidMount() {
@@ -60,16 +63,6 @@ export default class App extends Component {
           startDate: items[item].startDate,
           endDate: items[item].endDate
         });
-
-        // if (items[item].name == 'Bursztynowy') {
-        //   startDate = moment(items[item].startDate, 'DD/MM/YYYY');
-        //   endDate = moment(items[item].endDate, 'DD/MM/YYYY');
-        //
-        //   while (startDate.isSameOrBefore(endDate)) {
-        //     apartment1UnavailableDates.push(startDate.clone());
-        //     startDate.add(1, 'days');
-        //   }
-        // }
 
         switch (items[item].name) {
           case 'Bursztynowy':
@@ -130,8 +123,13 @@ export default class App extends Component {
         apartment3UnavailableDates: apartment3UnavailableDates,
         apartment4UnavailableDates: apartment4UnavailableDates,
         apartment5UnavailableDates: apartment5UnavailableDates
-      });
+      }, this.loadingEnded);
     });
+  }
+
+  loadingEnded = () => {
+    console.log('koniec');
+    this.setState({loading: false});
   }
 
   handleOpenModal = () => {
@@ -321,7 +319,7 @@ export default class App extends Component {
         <div>
           <ReservationList
             bookList={this.state.bookList}
-            deleteReservation={this.handleDeleteReservation.bind(this)}
+            deleteReservation={this.handleDeleteReservation}
           />
           <AddReservationModal
             open={this.state.modalIsOpen}

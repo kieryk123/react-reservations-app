@@ -10,7 +10,7 @@ import ImageSrebrny from './images/srebrny.jpg';
 import ImageZloty from './images/zloty.jpg';
 
 export default class ReservationList extends Component {
-	deleteReservation(index) {
+	deleteReservation = (index) => {
 		this.props.deleteReservation(index);
 	}
 
@@ -52,7 +52,7 @@ export default class ReservationList extends Component {
 					image={apartmentImage}
 					fromDate={fromDate}
 					toDate={toDate}
-					delete={this.deleteReservation.bind(this)}
+					delete={this.deleteReservation}
 				/>
 			)
 		});
